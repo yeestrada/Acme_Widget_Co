@@ -50,14 +50,22 @@ A Laravel-based shopping basket application that implements various business rul
 - Success messages after checkout
 
 ### Checkout Process
-- Automatic receipt generation and download
-- Receipt includes:
-  - Company information
-  - Purchase date
-  - Itemized product list
-  - Applied discounts
-  - Delivery costs
-  - Total amount
+- Automatic receipt generation and download in text format
+- Receipt file includes:
+  - Company information and logo
+  - Purchase date and time
+  - Itemized product list with:
+    - Product codes
+    - Quantities
+    - Individual prices
+    - Applied discounts per item
+  - Order summary with:
+    - Subtotal
+    - Total discounts
+    - Delivery costs
+    - Final total
+  - Thank you message
+- Receipt is automatically downloaded as `receipt_YYYY-MM-DD.txt`
 - Basket reset after successful checkout
 - Continue shopping option
 
