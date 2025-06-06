@@ -168,3 +168,7 @@ php artisan test
 ## License
 
 This project is licensed under the MIT License.
+
+## Screenshot
+
+![Acme Widget Co Shopping Basket](assets/image.jpg)
