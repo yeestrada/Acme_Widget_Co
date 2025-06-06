@@ -57,7 +57,12 @@ class BasketWebController extends Controller
         return view('basket', [
             'products' => $products,
             'offers' => $offers,
-            'offerTexts' => $offerTexts
+            'offerTexts' => $offerTexts,
+            'discounts' => 0,
+            'subtotal' => 0,
+            'total' => 0,
+            'deliveryCost' => 0,
+            'selected' => []
         ]);
     }
 
@@ -122,66 +127,84 @@ class BasketWebController extends Controller
     }
 
     /**
-     * Calculate the total price of the basket and return as JSON
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Calculate basket costs via AJAX
      */
     public function calculateAjax(Request $request)
     {
         try {
-            $offers = [];
             $products = $this->getProducts();
-
-            // Get delivery rules from config
             $deliveryRules = new DeliveryRules(config('delivery.rules'));
-
+            
             // Get offers from config
+            $offers = [];
             foreach (config('offers.buy_one_get_half_price.products') as $productCode) {
                 $offers[] = new BuyOneGetOneHalfPrice($productCode);
             }
-
-            // Create the basket
+            
+            // Create basket with required dependencies
             $basket = new Basket($products, $deliveryRules, $offers);
-
-            // Get the items from the request
-            $items = $request->input('items', []);
-
-            // Add the items to the basket
-            foreach ($items as $code => $quantity) {
-                if (!isset($products[$code])) {
-                    continue;
-                }
-
-                $quantity = (int)$quantity;
-                if ($quantity < 1) {
-                    continue;
-                }
-
-                // Add the quantity to the basket
-                for ($i = 0; $i < $quantity; $i++) {
-                    $basket->add($code);
+            
+            // Add products to basket
+            $requestProducts = $request->input('products', []);
+            foreach ($requestProducts as $product) {
+                if (!empty($product['quantity']) && $product['quantity'] > 0) {
+                    // Add the product the specified number of times
+                    for ($i = 0; $i < $product['quantity']; $i++) {
+                        $basket->add($product['code']);
+                    }
                 }
             }
-
+            
+            // Get costs
             $subtotal = $basket->getSubtotal();
+            $discounts = $basket->getDiscounts();
             $deliveryCost = $basket->getDeliveryCost();
-            $deliveryRule = $deliveryRules->getAppliedRule($subtotal);
-
-            return response()->json([
-                'subtotal' => $subtotal,
-                'discounts' => $basket->getDiscounts(),
-                'deliveryCost' => $deliveryCost,
-                'deliveryRule' => $deliveryRule,
-                'total' => $basket->total()
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Basket calculation error: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
+            $total = $basket->total();
+            
+            // Get applied delivery rule
+            $deliveryRule = $basket->getAppliedRule();
+            
+            // Get applied offers
+            $appliedOffers = [];
+            foreach ($basket->getItems() as $code => $item) {
+                if (isset($products[$code]) && $item['quantity'] > 0) {
+                    $product = $products[$code];
+                    $hasOffer = false;
+                    $discount = 0;
+                    
+                    foreach ($offers as $offer) {
+                        if ($offer->appliesTo($code)) {
+                            $hasOffer = true;
+                            $discount = $offer->calculateDiscount($item['quantity'], $product->price);
+                            break;
+                        }
+                    }
+                    
+                    if ($hasOffer) {
+                        $appliedOffers[$code] = [
+                            'hasOffer' => true,
+                            'discount' => $discount
+                        ];
+                    }
+                }
+            }
             
             return response()->json([
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'success' => true,
+                'data' => [
+                    'subtotal' => $subtotal,
+                    'discounts' => $discounts,
+                    'deliveryCost' => $deliveryCost,
+                    'total' => $total,
+                    'deliveryRule' => $deliveryRule,
+                    'appliedOffers' => $appliedOffers
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
             ], 500);
         }
     }

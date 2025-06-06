@@ -6,12 +6,12 @@ use Illuminate\Console\Command;
 use App\Services\Basket\Product;
 use App\Services\Basket\Basket;
 use App\Services\Basket\DeliveryRules;
-use App\Services\Basket\Offers\BuyOneRedHalfPrice;
+use App\Services\Basket\Offers\BuyOneGetOneHalfPrice;
 
 class TestBasket extends Command
 {
     protected $signature = 'basket:test';
-    protected $description = 'Prueba la lógica del carrito';
+    protected $description = 'Test the basket logic';
 
     public function handle()
     {
@@ -27,7 +27,7 @@ class TestBasket extends Command
             ['limit' => INF,  'cost' => 0.0],
         ]);
 
-        $offers = [new BuyOneRedHalfPrice()];
+        $offers = [new BuyOneGetOneHalfPrice('R01')];
 
         $basket = new Basket($products, $rules, $offers);
 

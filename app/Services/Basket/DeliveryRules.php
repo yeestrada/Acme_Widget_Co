@@ -16,7 +16,11 @@ class DeliveryRules
      */
     public function __construct(array $rules)
     {
-        // Example: [ ['limit' => 50.0, 'cost' => 4.95], ... ]
+        // Sort rules by limit from lowest to highest
+        usort($rules, function($a, $b) {
+            return $a['limit'] <=> $b['limit'];
+        });
+        
         $this->rules = $rules;
     }
 
@@ -39,34 +43,35 @@ class DeliveryRules
     }
 
     /**
-     * Get the delivery rule that is being applied
+     * Get the applied delivery rule
      * @param float $subtotal
      * @return array|null
      */
     public function getAppliedRule(float $subtotal): ?array
     {
-        $maxCost = max(array_column($this->rules, 'cost'));
-        
-        foreach ($this->rules as $rule) {
+        // Sort rules by limit from lowest to highest
+        $sortedRules = $this->rules;
+        usort($sortedRules, function($a, $b) {
+            return $a['limit'] <=> $b['limit'];
+        });
+
+        $minLimit = min(array_column($sortedRules, 'limit'));        
+        foreach ($sortedRules as $rule) {
             if ($subtotal < $rule['limit']) {
-                // If the cost is 0, show "Free delivery"
-                if ($rule['cost'] === 0.0) {
-                    return [
-                        'limit' => $rule['limit'],
-                        'cost' => $rule['cost'],
-                        'message' => "Free delivery"
-                    ];
+                $message = null;
+                if ($rule['cost'] <= 0) {
+                    $message = "Free delivery";
+                } elseif ($rule['limit'] != $minLimit) {
+                    $message = "Delivery discount applied";
                 }
                 
-                // If the cost is less than the maximum, show the discount message
                 return [
                     'limit' => $rule['limit'],
                     'cost' => $rule['cost'],
-                    'message' => $rule['cost'] < $maxCost ? "Delivery discount applied" : null
+                    'message' => $message
                 ];
             }
         }
-
         return null;
     }
 }

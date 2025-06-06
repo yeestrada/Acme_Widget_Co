@@ -48,7 +48,7 @@ class Basket
     {
         // Check if the product code is valid
         if (!isset($this->products[$productCode])) {
-            throw new \InvalidArgumentException("Producto no válido: $productCode");
+            throw new \InvalidArgumentException("Product not valid: $productCode");
         }
 
         // Check if the product is already in the basket
@@ -118,27 +118,26 @@ class Basket
         foreach ($this->items as $code => $item) {
             $product = $item['product'];
             $quantity = $item['quantity'];
-            $originalPrice = $product->price * $quantity;
+            $originalPrice = round($product->price * $quantity, 2);
+            $this->subtotal += $originalPrice;
 
             // Apply the offers to the product
             foreach ($this->offers as $offer) {
                 if ($offer->appliesTo($product->code)) {
-                    $discountedPrice = $offer->apply($product, $quantity);
-                    $this->subtotal += $discountedPrice;
-                    $this->discounts += $originalPrice - $discountedPrice;
+                    $discountedPrice = round($offer->apply($product, $quantity), 2);
+                    $this->discounts += round($originalPrice - $discountedPrice, 2);
                     $this->productDiscounts[$code] = [
                         'original' => $originalPrice,
                         'discounted' => $discountedPrice,
-                        'savings' => $originalPrice - $discountedPrice
+                        'savings' => round($originalPrice - $discountedPrice, 2)
                     ];
-                    continue 2;
+                    break;
                 }
             }
-
-            $this->subtotal += $originalPrice;
         }
 
-        return round($this->subtotal, 2);
+        $this->subtotal = round($this->subtotal, 2);
+        return $this->subtotal;
     }
 
     /**
@@ -147,10 +146,35 @@ class Basket
      */
     public function getDiscounts(): float
     {
-        if ($this->subtotal === 0) {
-            $this->getSubtotal();
+        if ($this->discounts > 0) {
+            return $this->discounts;
         }
-        return round($this->discounts, 2);
+
+        $this->discounts = 0;
+        $this->productDiscounts = [];
+
+        foreach ($this->items as $code => $item) {
+            $product = $item['product'];
+            $quantity = $item['quantity'];
+            $originalPrice = round($product->price * $quantity, 2);
+
+            foreach ($this->offers as $offer) {
+                if ($offer->appliesTo($product->code)) {
+                    $discountedPrice = round($offer->apply($product, $quantity), 2);
+                    $discount = round($originalPrice - $discountedPrice, 2);
+                    $this->discounts += $discount;
+                    $this->productDiscounts[$code] = [
+                        'original' => $originalPrice,
+                        'discounted' => $discountedPrice,
+                        'savings' => $discount
+                    ];
+                    break;
+                }
+            }
+        }
+
+        $this->discounts = round($this->discounts, 2);
+        return $this->discounts;
     }
 
     /**
@@ -159,11 +183,32 @@ class Basket
      */
     public function getDeliveryCost(): float
     {
-        if ($this->subtotal === 0) {
-            $this->getSubtotal();
-        }
-        $this->deliveryCost = $this->deliveryRules->getCost($this->subtotal);
+        $subtotal = $this->getSubtotal();
+        $discounts = $this->getDiscounts();
+        $subtotalAfterDiscounts = round($subtotal - $discounts, 2);
+        $this->deliveryCost = $this->deliveryRules->getCost($subtotalAfterDiscounts);
         return round($this->deliveryCost, 2);
+    }
+
+    /**
+     * Get the items in the basket
+     * @return array
+     */
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    /**
+     * Get the applied delivery rule
+     * @return array
+     */
+    public function getAppliedRule(): array
+    {
+        $subtotal = $this->getSubtotal();
+        $discounts = $this->getDiscounts();
+        $subtotalAfterDiscounts = round($subtotal - $discounts, 2);
+        return $this->deliveryRules->getAppliedRule($subtotalAfterDiscounts);
     }
 
     /**
@@ -172,8 +217,10 @@ class Basket
      */
     public function total(): float
     {
-        $this->getSubtotal();
-        $this->getDeliveryCost();
-        return round($this->subtotal + $this->deliveryCost, 2);
+        $subtotal = $this->getSubtotal();
+        $discounts = $this->getDiscounts();
+        $deliveryCost = $this->getDeliveryCost();
+        
+        return round($subtotal - $discounts + $deliveryCost, 2);
     }
 }

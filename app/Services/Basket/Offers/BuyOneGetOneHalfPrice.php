@@ -56,6 +56,22 @@ class BuyOneGetOneHalfPrice implements OfferInterface
     }
 
     /**
+     * Calculate the discount amount for the given quantity and price
+     * @param int $quantity
+     * @param float $price
+     * @return float
+     */
+    public function calculateDiscount(int $quantity, float $price): float
+    {
+        // Get the number of pairs of products
+        $pairs = intdiv($quantity, 2);
+        // Calculate the discount (half price for each second item)
+        $discount = $pairs * ($price / 2);
+        // round down to 2 decimal places
+        return floor($discount * 100) / 100;
+    }
+
+    /**
      * Get the display text for the offer
      * @return string
      */

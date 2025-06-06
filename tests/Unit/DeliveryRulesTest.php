@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Services\Basket\DeliveryRules;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class DeliveryRulesTest extends TestCase
 {
