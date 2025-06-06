@@ -1,131 +1,73 @@
-# 🛒 Acme Widget Co - Shopping Cart System
+# Acme Widget Co - Shopping Basket
 
-This project is a proof of concept for Acme Widget Co's new sales system, developed in PHP with Laravel.
+A Laravel-based shopping basket application that implements various business rules for product pricing, delivery costs, and special offers. The system is designed to be highly extensible, allowing for easy addition of new products and promotional offers.
 
-## Project Context
+## Features
 
-This project has been developed as a proof of concept to solve a specific business logic: calculating the total of a shopping cart considering products, delivery rules, and promotional offers.
+### Core Functionality
+- Product management with basic properties (code, name, price)
+- Shopping basket with quantity selection
+- Real-time price calculations
+- Special offers implementation
+- Delivery cost rules based on order value
+- Extensible architecture for easy addition of new features
 
-Since this project is a proof of concept, the use of Laravel's config files for loading products, delivery rules, and offers was a deliberate choice. This approach offers several advantages at this stage:
+### Special Offers
+- Buy One Get One Half Price offer for Red Widgets
+- Dynamic offer display on product cards
+- Real-time discount calculations
+- Visual indication of savings
+- Offer system that allows:
+  - Adding new types of offers
+  - Applying offers to specific products
+  - Configuring offer parameters
 
-✅ Simplifies development by removing the need to manage migrations, seeders, or database connections.
-
-✅ Speeds up testing of different cart scenarios without needing to persist data.
-
-✅ Keeps the logic focused on the business rules rather than infrastructure.
-
-However, in a real-world production environment, storing products and offers in a database would be more appropriate for scalability. It would enable:
-
-- Dynamic product and pricing management
-- Admin interfaces for promotional campaigns
-- Better integration with inventory, customers, and orders
-
-This architectural decision keeps the project lightweight and testable while maintaining flexibility for future growth.
-
-## Exercise Requirements
-
-### Products
-- Red Widget (R01): $32.95
-- Green Widget (G01): $24.95
-- Blue Widget (B01): $7.95
+### Product Management
+- Basic product configuration (code, name, price)
+- Easy addition of new products
+- Support for product-specific offers
 
 ### Delivery Rules
-- Orders < $50: $4.95
-- Orders < $90: $2.95
-- Orders >= $90: Free delivery
+- Standard delivery: $4.95 (orders under $50)
+- Premium delivery: $2.95 (orders between $50 and $90)
+- Free delivery: $0.00 (orders over $90)
+- Configurable delivery thresholds and costs
 
-### Offers
-- Buy one red widget, get the second half price
+### User Interface
+- Modern, responsive design using Tailwind CSS
+- Real-time updates without page refresh
+- Clear display of:
+  - Product prices
+  - Applied discounts
+  - Delivery costs
+  - Total amount
+- Disabled checkout button when basket is empty
+- Success messages after checkout
 
-### Calculation Examples
-| Products | Total |
-|-----------|-------|
-| B01, G01 | $37.85 |
-| R01, R01 | $54.37 |
-| R01, G01 | $60.85 |
-| B01, B01, R01, R01, R01 | $98.27 |
+### Checkout Process
+- Automatic receipt generation and download in text format
+- Receipt file includes:
+  - Purchase date and time
+  - Itemized product list with:
+    - Product codes
+    - Quantities
+    - Individual prices
+    - Applied discounts per item
+  - Order summary with:
+    - Subtotal
+    - Total discounts
+    - Delivery costs
+    - Final total
+- Receipt is automatically downloaded as `receipt_YYYY-MM-DD.txt`
+- Basket reset after successful checkout
 
-## Implementation
-
-### Basket Interface
-The basket implements the following interface:
-- Initialized with:
-  - Product catalog
-  - Delivery charge rules
-  - Offers
-- `add` method: Adds a product by its code
-- `total` method: Calculates the total cost including delivery and offers
-
-### Project Structure
-
-#### Main Classes
-
-##### `Product` (`app/Services/Basket/Product.php`)
-- Represents a product in the system
-- Properties: code, name, and price
-
-##### `Basket` (`app/Services/Basket/Basket.php`)
-- Implements the main basket logic
-- Manages products, offers, and delivery
-- Calculates the final total
-
-##### `DeliveryRules` (`app/Services/Basket/DeliveryRules.php`)
-- Implements delivery rules based on subtotal
-
-##### `BuyOneGetOneHalfPrice` (`app/Services/Basket/Offers/BuyOneGetOneHalfPrice.php`)
-- Implements the "second half price" offer
-- Applies only to Red Widgets (R01)
-
-### Configuration Files
-
-#### `config/products.php`
-```php
-return [
-    'R01' => [
-        'name' => 'Red Widget',
-        'price' => 32.95,
-    ],
-    'G01' => [
-        'name' => 'Green Widget',
-        'price' => 24.95,
-    ],
-    'B01' => [
-        'name' => 'Blue Widget',
-        'price' => 7.95,
-    ],
-];
-```
-Defines the available products with their codes, names, and prices.
-
-#### `config/delivery.php`
-```php
-return [
-    'rules' => [
-        ['limit' => 50.0, 'cost' => 4.95],
-        ['limit' => 90.0, 'cost' => 2.95],
-        ['limit' => INF,  'cost' => 0.0],
-    ],
-];
-```
-Defines the delivery cost rules based on order subtotal.
-
-#### `config/offers.php`
-```php
-return [
-    'buy_one_get_half_price' => [
-        'class' => BuyOneGetOneHalfPrice::class,
-        'products' => ['R01'],
-    ],
-];
-```
-Configures the available offers and which products they apply to.
-
-### Tests
-The project includes unit tests that verify:
-- Correct price calculations
-- Offer applications
-- Delivery rules
-- Examples provided in the requirements
+### Testing
+- Test suite covering:
+  - Basket calculations
+  - Special offers
+  - Delivery rules
+  - Controller functionality
+  - Basic error handling
 
 ## Installation
 
@@ -134,33 +76,95 @@ The project includes unit tests that verify:
    ```bash
    composer install
    ```
-3. Start the server:
+3. Configure your environment:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+4. Start the development server:
    ```bash
    php artisan serve
    ```
 
-## Usage
+## Configuration
 
-1. Access the application at `http://localhost:8000`
-2. Select products and quantities
-3. Click "Calculate total"
-4. View the total with delivery and discounts applied
+### Products
+Configure products in `config/products.php`:
+```php
+return [
+    [
+        'code' => 'R01',
+        'name' => 'Red Widget',
+        'price' => 32.95
+    ],
+    // Add more products...
+];
+```
 
-## Assumptions and Design Decisions
+### Offers
+Configure offers in `config/offers.php`:
+```php
+return [
+    'buy_one_get_half_price' => [
+        'class' => BuyOneGetOneHalfPrice::class,
+        'products' => ['R01'],
+        'display_text' => '2nd 50% off!',
+    ],
+    // Add more offers...
+];
+```
 
-1. **Rounding**: Prices are rounded to 2 decimal places
-2. **Offers**: 
-   - The "second half price" offer is applied in pairs
-   - If there's an odd number of products, the last one is charged at full price
-3. **Delivery**: 
-   - Delivery cost is calculated on the subtotal after applying offers
-4. **Interface**: 
-   - A simple web interface has been added for testing purposes
-   - Business logic is separated from the interface
+### Delivery Rules
+Configure delivery rules in `config/delivery.php`:
+```php
+return [
+    'rules' => [
+        ['limit' => 50.0, 'cost' => 4.95],
+        ['limit' => 90.0, 'cost' => 2.95],
+        ['limit' => PHP_FLOAT_MAX,  'cost' => 0.0],
+    ],
+];
+```
 
-## Technologies Used
+## Extending the System
 
-- PHP 8.x
-- Laravel Framework
-- Tailwind CSS for the interface
-- PHPUnit for testing
+### Adding New Products
+1. Add the product configuration in `config/products.php`
+2. The system will automatically:
+   - Display the new product in the interface
+   - Include it in price calculations
+   - Make it available for offers
+
+### Adding New Offers
+1. Create a new offer class implementing the `OfferInterface`
+2. Add the offer configuration in `config/offers.php`
+3. The system will automatically:
+   - Apply the offer to specified products
+   - Display offer information in the interface
+   - Calculate discounts in real-time
+
+### Modifying Delivery Rules
+1. Update the rules in `config/delivery.php`
+2. The system will automatically:
+   - Apply new delivery costs
+   - Update delivery messages
+   - Recalculate totals
+
+## Running Tests
+
+Run the test suite:
+```bash
+php artisan test
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
+
+## License
+
+This project is licensed under the MIT License.

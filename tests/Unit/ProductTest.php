@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Services\Basket\Product;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class ProductTest extends TestCase
 {
