@@ -5,7 +5,7 @@ A Laravel-based shopping basket application that implements various business rul
 ## Features
 
 ### Core Functionality
-- Product management with configurable prices
+- Product management with basic properties (code, name, price)
 - Shopping basket with quantity selection
 - Real-time price calculations
 - Special offers implementation
@@ -17,19 +17,15 @@ A Laravel-based shopping basket application that implements various business rul
 - Dynamic offer display on product cards
 - Real-time discount calculations
 - Visual indication of savings
-- Flexible offer system that allows:
+- Offer system that allows:
   - Adding new types of offers
-  - Applying offers to any product
+  - Applying offers to specific products
   - Configuring offer parameters
-  - Customizing offer display text
-  - Multiple offers per product
 
 ### Product Management
-- Dynamic product configuration
+- Basic product configuration (code, name, price)
 - Easy addition of new products
-- Configurable product properties
 - Support for product-specific offers
-- Flexible pricing structure
 
 ### Delivery Rules
 - Standard delivery: $4.95 (orders under $50)
@@ -46,13 +42,11 @@ A Laravel-based shopping basket application that implements various business rul
   - Delivery costs
   - Total amount
 - Disabled checkout button when basket is empty
-- Loading indicators during processing
 - Success messages after checkout
 
 ### Checkout Process
 - Automatic receipt generation and download in text format
 - Receipt file includes:
-  - Company information and logo
   - Purchase date and time
   - Itemized product list with:
     - Product codes
@@ -64,18 +58,16 @@ A Laravel-based shopping basket application that implements various business rul
     - Total discounts
     - Delivery costs
     - Final total
-  - Thank you message
 - Receipt is automatically downloaded as `receipt_YYYY-MM-DD.txt`
 - Basket reset after successful checkout
-- Continue shopping option
 
 ### Testing
-- Comprehensive test suite covering:
+- Test suite covering:
   - Basket calculations
   - Special offers
   - Delivery rules
   - Controller functionality
-  - Edge cases and error handling
+  - Basic error handling
 
 ## Installation
 
