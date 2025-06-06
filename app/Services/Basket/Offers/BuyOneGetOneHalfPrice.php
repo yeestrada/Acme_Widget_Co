@@ -54,4 +54,13 @@ class BuyOneGetOneHalfPrice implements OfferInterface
         // round down to 2 decimal places
         return floor($subtotal * 100) / 100;
     }
+
+    /**
+     * Get the display text for the offer
+     * @return string
+     */
+    public function getDisplayText(): string
+    {
+        return config('offers.buy_one_get_half_price.display_text', 'Special offer');
+    }
 }

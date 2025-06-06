@@ -15,6 +15,6 @@ return [
     'rules' => [
         ['limit' => 50.0, 'cost' => 4.95],
         ['limit' => 90.0, 'cost' => 2.95],
-        ['limit' => INF,  'cost' => 0.0],
+        ['limit' => PHP_FLOAT_MAX, 'cost' => 0.0],
     ],
 ];

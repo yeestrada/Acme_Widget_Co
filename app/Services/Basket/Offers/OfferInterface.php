@@ -12,4 +12,5 @@ interface OfferInterface
 {
     public function appliesTo(string $productCode): bool;
     public function apply(Product $product, int $quantity): float;
+    public function getDisplayText(): string;
 }

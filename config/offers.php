@@ -17,5 +17,6 @@ return [
     'buy_one_get_half_price' => [
         'class' => BuyOneGetOneHalfPrice::class,
         'products' => ['R01'],
+        'display_text' => '2nd 50% off!',
     ],
 ];
