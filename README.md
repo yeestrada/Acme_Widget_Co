@@ -1,4 +1,4 @@
-# 🛒 Acme Widget Co - Shopping Cart System
+# ?? Acme Widget Co - Shopping Cart System
 
 This project is a proof of concept for Acme Widget Co's new sales system, developed in PHP with Laravel.
 
@@ -8,11 +8,11 @@ This project has been developed as a proof of concept to solve a specific busine
 
 Since this project is a proof of concept, the use of Laravel's config files for loading products, delivery rules, and offers was a deliberate choice. This approach offers several advantages at this stage:
 
-✅ Simplifies development by removing the need to manage migrations, seeders, or database connections.
+? Simplifies development by removing the need to manage migrations, seeders, or database connections.
 
-✅ Speeds up testing of different cart scenarios without needing to persist data.
+? Speeds up testing of different cart scenarios without needing to persist data.
 
-✅ Keeps the logic focused on the business rules rather than infrastructure.
+? Keeps the logic focused on the business rules rather than infrastructure.
 
 However, in a real-world production environment, storing products and offers in a database would be more appropriate for scalability. It would enable:
 
@@ -134,7 +134,12 @@ The project includes unit tests that verify:
    ```bash
    composer install
    ```
-3. Start the server:
+3. Configure environment:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+4. Start the server:
    ```bash
    php artisan serve
    ```
