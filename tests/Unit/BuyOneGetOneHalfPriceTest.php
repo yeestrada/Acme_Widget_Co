@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use App\Services\Basket\Product;
 use App\Services\Basket\Offers\BuyOneGetOneHalfPrice;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class BuyOneGetOneHalfPriceTest extends TestCase
 {

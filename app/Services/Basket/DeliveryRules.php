@@ -16,7 +16,11 @@ class DeliveryRules
      */
     public function __construct(array $rules)
     {
-        // Example: [ ['limit' => 50.0, 'cost' => 4.95], ... ]
+        // Sort rules by limit from lowest to highest
+        usort($rules, function($a, $b) {
+            return $a['limit'] <=> $b['limit'];
+        });
+        
         $this->rules = $rules;
     }
 
@@ -36,5 +40,38 @@ class DeliveryRules
 
         // If no rule applies, delivery is free
         return 0.0;
+    }
+
+    /**
+     * Get the applied delivery rule
+     * @param float $subtotal
+     * @return array|null
+     */
+    public function getAppliedRule(float $subtotal): ?array
+    {
+        // Sort rules by limit from lowest to highest
+        $sortedRules = $this->rules;
+        usort($sortedRules, function($a, $b) {
+            return $a['limit'] <=> $b['limit'];
+        });
+
+        $minLimit = min(array_column($sortedRules, 'limit'));        
+        foreach ($sortedRules as $rule) {
+            if ($subtotal < $rule['limit']) {
+                $message = null;
+                if ($rule['cost'] <= 0) {
+                    $message = "Free delivery";
+                } elseif ($rule['limit'] != $minLimit) {
+                    $message = "Delivery discount applied";
+                }
+                
+                return [
+                    'limit' => $rule['limit'],
+                    'cost' => $rule['cost'],
+                    'message' => $message
+                ];
+            }
+        }
+        return null;
     }
 }

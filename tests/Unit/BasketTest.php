@@ -6,7 +6,7 @@ use App\Services\Basket\Product;
 use App\Services\Basket\Basket;
 use App\Services\Basket\DeliveryRules;
 use App\Services\Basket\Offers\BuyOneGetOneHalfPrice;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class BasketTest extends TestCase
 {
@@ -54,7 +54,7 @@ class BasketTest extends TestCase
         $this->basket->add('R01');
         $this->basket->add('R01');
         
-        // Calculamos el precio de dos widgets con la oferta
+        // Calculate the price of two widgets with the offer
         $fullPrice = 32.95;
         $halfPrice = floor($fullPrice / 2 * 100) / 100; // 16.47
         $subtotal = $fullPrice + $halfPrice; // 32.95 + 16.47 = 49.42
