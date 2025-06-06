@@ -172,4 +172,3 @@ This project is licensed under the MIT License.
 ## Screenshot
 
 ![Acme Widget Co Shopping Basket](assets/image.jpg)
-*Example of the Acme Widget Co shopping basket application in action*
