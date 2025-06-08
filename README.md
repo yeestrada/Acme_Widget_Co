@@ -169,6 +169,14 @@ php artisan test
 
 This project is licensed under the MIT License.
 
-## Screenshot
+## Screenshots
 
-![Acme Widget Co Shopping Basket](assets/image.jpg)
+### Base Implementation
+*Base implementation showing the standard behavior with predefined products as requested in the exercise*
+
+![Acme Widget Co Shopping Basket - Base Case](assets/default.jpg)
+
+### Extended Example
+*Extended example where one more product has been added and the same "Buy One Get One Half Price" offer has been applied to it*
+
+![Acme Widget Co Shopping Basket - Extended Case](assets/image.jpg)
